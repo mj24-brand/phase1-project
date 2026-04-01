@@ -1,5 +1,5 @@
 <?php
-if (!isset($_SESSION['admin']) && !(isset($_SESSION['role']) && $_SESSION['role'] === 'admin')) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../../login.php");
     exit();
 }
@@ -9,23 +9,21 @@ $alertMessage = "";
 
 // Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // ---------- ADD USER ----------
+    // Add user
     if (isset($_POST['add_user'])) {
         $username = mysqli_real_escape_string($conn, trim($_POST['username']));
         $full_name = mysqli_real_escape_string($conn, trim($_POST['full_name']));
         $role = mysqli_real_escape_string($conn, $_POST['role']);
         $password = $_POST['password'];
 
-        // Validate
-        if (empty($username) || empty($full_name) || empty($role)) {
+        if (empty($username) || empty($full_name) || empty($role) || empty($password)) {
             $alertMessage = "Please fill all required fields.";
         } else {
-            // Check if username already exists
             $check = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username'");
             if (mysqli_num_rows($check) > 0) {
                 $alertMessage = "Username already exists.";
             } else {
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                $hashedPassword = md5($password); 
                 $query = "INSERT INTO users (username, password, full_name, role) VALUES ('$username', '$hashedPassword', '$full_name', '$role')";
                 if (mysqli_query($conn, $query)) {
                     if (function_exists('logActivity')) {
@@ -39,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // ---------- EDIT USER ----------
+    // Edit user
     elseif (isset($_POST['edit_user'])) {
         $id = (int) $_POST['id'];
         $full_name = mysqli_real_escape_string($conn, trim($_POST['full_name']));
@@ -60,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // ---------- RESET PASSWORD ----------
+    // Reset password
     elseif (isset($_POST['reset_password'])) {
         $id = (int) $_POST['id'];
         $defaultPassword = "12345678";
-        $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
+        $hashedPassword = md5($defaultPassword); 
 
         $query = "UPDATE users SET password = '$hashedPassword' WHERE id = $id";
         if (mysqli_query($conn, $query)) {
@@ -77,10 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // ---------- DELETE USER ----------
+    // Delete user
     elseif (isset($_POST['delete_user'])) {
         $id = (int) $_POST['id'];
-        // Prevent self-deletion
         if ($id == $_SESSION['user_id']) {
             $alertMessage = "You cannot delete your own account.";
         } else {
@@ -97,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch all users (excluding passwords for display)
+// Fetch all users
 $users = [];
 $result = mysqli_query($conn, "SELECT id, username, full_name, role, created_at FROM users ORDER BY id");
 if ($result) {
@@ -112,11 +109,12 @@ if ($result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
+    <link rel="stylesheet" href="../../assets/styles/admin.css">
 </head>
 <body>
     <?php if (!empty($alertMessage)): ?>
         <script>
-            alert('<?php echo addslashes($alertMessage); ?>');
+            alert(<?php echo json_encode($alertMessage); ?>);
         </script>
     <?php endif; ?>
 
@@ -172,8 +170,8 @@ if ($result) {
                     <td><?php echo $user['created_at']; ?></td>
                     <td>
                         <button type="submit" name="edit_user">Update</button>
-                        <button type="submit" name="reset_password" onclick="return confirm('Reset password for <?php echo addslashes($user['username']); ?>? The new password will be \'password123\'.');">Reset Password</button>
-                        <button type="submit" name="delete_user" onclick="return confirm('Delete user <?php echo addslashes($user['username']); ?>?');">Delete</button>
+                        <button type="submit" name="reset_password" onclick="return confirm('Reset password for <?php echo htmlspecialchars($user['username']); ?>? The new password will be \'12345678\'.');">Reset Password</button>
+                        <button type="submit" name="delete_user" onclick="return confirm('Delete user <?php echo htmlspecialchars($user['username']); ?>?');">Delete</button>
                     </td>
                 </tr>
             </form>

@@ -1,8 +1,7 @@
 <?php
 session_start();
-require_once 'config/db.php';   // your database connection
+include("config/db.php");
 
-// Check login
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit();

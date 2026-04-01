@@ -38,7 +38,7 @@ if(isset($_POST['login'])){
         }else if($role==='waiter'){
             header("Location:Dashboard/Waiter/index.php");
         }else if($role==='cashier'){
-            header("Location:Dashboard/Casheir/index.php");
+            header("Location:Dashboard/Cashier/index.php");
         }else{
             header("Location:Dashboard/Kitchen/index.php");
         }
