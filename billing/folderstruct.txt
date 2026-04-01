@@ -1,0 +1,12 @@
+MANGLOR...
+│
+├── assets
+│   ├── css
+│   ├── images
+│   │   └── image.png
+│
+└── billing
+    ├── billing.css
+    ├── billing.php
+    ├── processpayment.php
+    └── receipt.php
