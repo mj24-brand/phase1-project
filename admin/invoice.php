@@ -1,3 +1,4 @@
+<?php  include("auth.php");?>
 <?php include("../config/db.php"); ?>
 <?php include("../includes/notify.php"); ?>
 

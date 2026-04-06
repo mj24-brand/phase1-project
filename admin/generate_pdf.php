@@ -1,4 +1,6 @@
+<?php  include("auth.php");?>
 <?php include("../config/db.php"); ?>
+
 
 <?php
 $id = $_GET['id'];

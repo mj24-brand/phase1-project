@@ -12,7 +12,7 @@
     <!-- Styles -->
     <style>
         .footer {
-            background: #2c3e50;
+            background: #403103;
             color: #ffffff;
             text-align: center;
             padding: 12px 10px;
